@@ -7,7 +7,11 @@ def market_analysis():
         response = requests.get(url, timeout = 10)
         data = response.json()
         df = pd.DataFrame(data)
-        increasing = df[(df['current_price'] > 500) & (df['price_change_percentage_24h'] > 0)]
+        df = df.rename(columns={'current_price' : 'Price_USD' , 'price_change_percentage_24h' : 'Change_24h_pct'})
+        df.loc[df['Change_24h_pct'] > 0 , 'Status'] = 'Bullish'
+        df.loc[df['Change_24h_pct'] <= 0 , 'Status'] = 'Bearish'
+        df = df.sort_values(by='Price_USD' , ascending = False)
+        increasing = df[(df['Price_USD'] > 500) & (df['Change_24h_pct'] > 0)]
         folder = 'Market_reports'
         if not os.path.exists(folder):
             os.mkdir(folder)
